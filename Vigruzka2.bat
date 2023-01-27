@@ -17,29 +17,39 @@ Set ext1=*.nwc
 Set ext2=*.nwd
 
 rem удалются nwc и nwd модели
-for /L %%i in (0,1,LsI) do (
-    del /f /q "%MainF2%\!Folders[%%i]!\%ext1%"	"%MainF2%\!Folders[%%i]!\%ext2%"
-)
+del /f /q "%MainF2%\!Folders[0]!\%ext1%"	"%MainF2%\!Folders[0]!\%ext2%"
+del /f /q "%MainF2%\!Folders[1]!\%ext1%"	"%MainF2%\!Folders[1]!\%ext2%"
+del /f /q "%MainF2%\!Folders[2]!\%ext1%"	"%MainF2%\!Folders[2]!\%ext2%"
+del /f /q "%MainF2%\!Folders[3]!\%ext1%"	"%MainF2%\!Folders[3]!\%ext2%"
+
 
 rem созадется пустой текстовый файл в каждой папке
-for /L %%i in (0,1,LsI) do (
-    cd.>%MainF%\!Folders[%%i]!\!Folders[%%i]!.txt
-)
+cd.>%MainF%\!Folders[0]!\!Folders[0]!.txt
+cd.>%MainF%\!Folders[1]!\!Folders[1]!.txt
+cd.>%MainF%\!Folders[2]!\!Folders[2]!.txt
+cd.>%MainF%\!Folders[3]!\!Folders[3]!.txt
+
 
 rem в текстовый файл прописываются все rvt модели в папке (без подпапок)
-for /L %%i in (0,1,LsI) do (
-    For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[%%i]!\%ext%') do echo %MainF2%\!Folders[%%i]!\%%A>>%MainF%\!Folders[%%i]!\!Folders[%%i]!.txt
-)
+For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[0]!\%ext%') do echo %MainF2%\!Folders[0]!\%%A>>%MainF%\!Folders[0]!\!Folders[0]!.txt
+For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[1]!\%ext%') do echo %MainF2%\!Folders[1]!\%%A>>%MainF%\!Folders[1]!\!Folders[1]!.txt
+For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[2]!\%ext%') do echo %MainF2%\!Folders[2]!\%%A>>%MainF%\!Folders[2]!\!Folders[2]!.txt
+For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[3]!\%ext%') do echo %MainF2%\!Folders[3]!\%%A>>%MainF%\!Folders[3]!\!Folders[3]!.txt
+
 
 rem запускается навис
-for /L %%i in (0,1,LsI) do (
-    start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[%%i]!\!Folders[%%i]!.txt" 	/od 	"%MainF2%\!Folders[%%i]!"	/version 2019
-)
+start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[0]!\!Folders[0]!.txt" 	/od 	"%MainF2%\!Folders[0]!"	/version 2019
+start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[1]!\!Folders[1]!.txt" 	/od 	"%MainF2%\!Folders[1]!"	/version 2019
+start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[2]!\!Folders[2]!.txt" 	/od 	"%MainF2%\!Folders[2]!"	/version 2019
+start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[3]!\!Folders[3]!.txt" 	/od 	"%MainF2%\!Folders[3]!"	/version 2019
 
-rem чистим за собой. удалются txt файлы
-for /L %%i in (0,1,LsI) do (
-    del /f /q "%MainF2%\!Folders[%%i]!\!Folders[%%i]!.txt"
-)
+rem чистим за собой. удалются txt файлы.
+rem ТАК КАК НАВИС ЗАПУСКАЕТСЯ ПАРАЛЕЛЬНО,ТО УДАЛЕНИЕ ФАЙЛОВ ПРОИСХОДИТ БЫСТРЕЕ ЧЕМ ЗАПУСТИТСЯ НАВИС
+rem ЛИБО ЗАПУСКАТЬ В ОТДЕЛЬНОМ ФАЙЛЕ, ЛИБО НАЙТИ КОМАНДА КОТОРАЯ ДОЖДЕТЬСЯ ЗАВЕРШЕНИЯ НАВИСА,ЛИБО ПОСЛЕДНИЙ ПРОЦЕСС ЗАПУСКАТЬ ПОСЛЕДОВАТЕЛЬНО
+rem del /f /q "%MainF2%\!Folders[0]!\!Folders[0]!.txt"
+rem del /f /q "%MainF2%\!Folders[1]!\!Folders[1]!.txt"
+rem del /f /q "%MainF2%\!Folders[2]!\!Folders[2]!.txt"
+rem del /f /q "%MainF2%\!Folders[3]!\!Folders[3]!.txt"
 
 endlocal
 rem pause можно удалить
