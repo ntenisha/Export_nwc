@@ -37,15 +37,15 @@ For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[2]!\%ext%') do echo %MainF2%\!
 For /F "Delims=" %%A in ('dir /b %MainF%\!Folders[3]!\%ext%') do echo %MainF2%\!Folders[3]!\%%A>>%MainF%\!Folders[3]!\!Folders[3]!.txt
 
 
-rem запускается навис
+rem запускается навис , последний индекс массива запускать без комманды старт
 start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[0]!\!Folders[0]!.txt" 	/od 	"%MainF2%\!Folders[0]!"	/version 2019
 start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[1]!\!Folders[1]!.txt" 	/od 	"%MainF2%\!Folders[1]!"	/version 2019
 start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[2]!\!Folders[2]!.txt" 	/od 	"%MainF2%\!Folders[2]!"	/version 2019
-start "" "C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[3]!\!Folders[3]!.txt" 	/od 	"%MainF2%\!Folders[3]!"	/version 2019
+"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "%MainF2%\!Folders[3]!\!Folders[3]!.txt" 	/od 	"%MainF2%\!Folders[3]!"	/version 2019
 
 rem чистим за собой. удалются txt файлы.
 rem ТАК КАК НАВИС ЗАПУСКАЕТСЯ ПАРАЛЕЛЬНО,ТО УДАЛЕНИЕ ФАЙЛОВ ПРОИСХОДИТ БЫСТРЕЕ ЧЕМ ЗАПУСТИТСЯ НАВИС
-rem ЛИБО ЗАПУСКАТЬ В ОТДЕЛЬНОМ ФАЙЛЕ, ЛИБО НАЙТИ КОМАНДА КОТОРАЯ ДОЖДЕТЬСЯ ЗАВЕРШЕНИЯ НАВИСА,ЛИБО ПОСЛЕДНИЙ ПРОЦЕСС ЗАПУСКАТЬ ПОСЛЕДОВАТЕЛЬНО
+rem ЛИБО ЗАПУСКАТЬ В ОТДЕЛЬНОМ ФАЙЛЕ, ЛИБО НАЙТИ КОМАНДУ КОТОРАЯ ДОЖДЕТСЯ ЗАВЕРШЕНИЯ НАВИСА,ЛИБО ПОСЛЕДНИЙ ПРОЦЕСС ЗАПУСКАТЬ ПОСЛЕДОВАТЕЛЬНО
 rem del /f /q "%MainF2%\!Folders[0]!\!Folders[0]!.txt"
 rem del /f /q "%MainF2%\!Folders[1]!\!Folders[1]!.txt"
 rem del /f /q "%MainF2%\!Folders[2]!\!Folders[2]!.txt"
