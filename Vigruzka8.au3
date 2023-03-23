@@ -11,6 +11,7 @@
 ; Script Start - Add your code below here
 
 #include <File.au3>
+#include <Date.au3>
 
 ; главная папка где находся подпапки АР,КР и прочее
 $MainF = "X:\00_BIM\14_Академика Волгина"
@@ -18,7 +19,7 @@ $MainF = "X:\00_BIM\14_Академика Волгина"
 ; путь для выгрузки nwd файлов
 $FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual"
 
-; путь для лог файла (также там будут временные файлы)
+; путь для лог файла (также там будут временные файлы) имя файла совпадает с текущим
 $LogFile="C:\ForPlanirovshik"
 
 Local $Folders[0]
@@ -35,6 +36,10 @@ _ArrayAdd($Folders, "05_VK")
 Local $ExcludeArr[0]
 ;_ArrayAdd($ExcludeArr, "X:\00_BIM\14_Академика Волгина\04_OT\AV_04_OT_PPFK_RD_R19_UND.rvt")
 ;_ArrayAdd($ExcludeArr, "X:\00_BIM\14_Академика Волгина\05_VK\AV_05_VK_PPFK_RD_R19_UND.rvt")
+
+
+
+
 
 
 ;защита от дурака, проверка пути
@@ -83,6 +88,13 @@ Func sortingArrSize(ByRef $FileList3)
 	Next
 EndFunc
 
+;запись строки в файл
+Func printTofile($printFile,  $FileListInd)
+	$hFile = FileOpen($printFile, 2)
+		FileWriteLine($hFile, $FileListInd & @CRLF)
+	FileClose($hFile)
+EndFunc
+
 ;запись массива во временные файлы и отправка на экпорт в 3 процесса
 Func multiProcessPrint($LogFile, $FileList3)
 
@@ -90,41 +102,60 @@ Func multiProcessPrint($LogFile, $FileList3)
 
 	For $i=0 To UBound($FileList3)-1
 		Do
-			Sleep(999)
+			Sleep(5000)
 			For $j=0 To 2
 				$aRet[$j]=ProcessExists($aRet[$j])
 			Next
 		Until 0=$aRet[0]Or 0=$aRet[1]Or 0=$aRet[2]
 		If 0=$aRet[0]Then
 			$tempFile00 = $LogFile & "\temp_1.txt"
-			printTofile3($tempFile00,  $FileList3[$i])
+			printTofile($tempFile00,  $FileList3[$i])
 			Sleep(999)
 			$aRet[0]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile00 & '" /od "'& $FolderNW & '" /version 2019 ')
+			if UBound($FileList3) - 1 - $i <= 3 then
+				Sleep(30000)
+			EndIf
 		ElseIf 0=$aRet[1]Then
 			$tempFile01 = $LogFile & "\temp_2.txt"
-			printTofile3($tempFile01,  $FileList3[$i])
+			printTofile($tempFile01,  $FileList3[$i])
 			Sleep(999)
 			$aRet[1]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile01 & '" /od "'& $FolderNW & '" /version 2019 ')
+			if UBound($FileList3) - 1 - $i <= 3 then
+				Sleep(30000)
+			EndIf
 		ElseIf 0=$aRet[2]Then
 			$tempFile02 = $LogFile & "\temp_3.txt"
-			printTofile3($tempFile02,  $FileList3[$i])
+			printTofile($tempFile02,  $FileList3[$i])
 			Sleep(999)
 			$aRet[2]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile02 & '" /od "'& $FolderNW & '" /version 2019 ')
+			if UBound($FileList3) - 1 - $i <= 3 then
+				Sleep(30000)
+			EndIf
 		EndIf
 	Next
-
+	
+	Sleep(30000)
+	
+	Do
+		Sleep(5000)
+		For $j=0 To 2
+		  $aRet[$j]=ProcessExists($aRet[$j])
+		Next
+	Until 0=$aRet[0]+$aRet[1]+$aRet[2]
 EndFunc
 
-;запись строки в файл
-Func printTofile3($printFile,  $FileListInd)
-	$hFile = FileOpen($printFile, 2)
-		FileWriteLine($hFile, $FileListInd & @CRLF)
-	FileClose($hFile)
+;удаление временных файлов
+Func purgeFiles($LogFile)
+	For	$i= 0 To 3 Step 1
+		FileDelete ( $LogFile & "\temp_" & $i & ".txt")
+	Next
 EndFunc
 
 ;проверка после выгрузки даты nwc и rvt и запись в Log
 Func proverkaNwc($LogFile2, $FileList3, $nwcExt)
-	$hFile = FileOpen($LogFile2, 2)
+	$hFile = FileOpen($LogFile2, 1)
+	FileWriteLine($hFile, @CRLF & "-------------------------------------------------------------")
+	FileWriteLine($hFile, "Дата выгрузки   " & _NowDate() & "   " &  _NowTime())
 	FileWriteLine($hFile, "Были подготовлены к выгрузке следующие файлы" & @CRLF& @CRLF)
 	For $k = 0 To (UBound($FileList3) - 1) Step 1
 		FileWriteLine($hFile, $FileList3[$k] & @CRLF)
@@ -136,13 +167,6 @@ Func proverkaNwc($LogFile2, $FileList3, $nwcExt)
 		EndIf
 	Next
 	FileClose($hFile)
-EndFunc
-
-;удаление временных файлов
-Func purgeFiles($LogFile)
-	For	$i= 0 To 3 Step 1
-		FileDelete ( $LogFile & "\temp_" & $i & ".txt")
-	Next
 EndFunc
 
 
@@ -189,12 +213,13 @@ Func ExportNwc($MainF , $FolderNW , $LogFile, $Folders , $ExcludeArr)
 
 	sortingArrSize($FileList3)
 
-;	multiProcessPrint($LogFile, $FileList3)
+	multiProcessPrint($LogFile, $FileList3)
 
 	purgeFiles($LogFile)
 	
 	proverkaNwc($LogFile2, $FileList3, $nwcExt)
 
 EndFunc
+
 
 ExportNwc($MainF , $FolderNW , $LogFile, $Folders , $ExcludeArr)
