@@ -25,7 +25,7 @@ _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\07_SS")
 _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\09_TM")
 
 
-; путь для выгрузки nwd файлов
+; путь для выгрузки nwd файлов , можно оставить пустым тогда nwd файлы будут выгружаться туда же где и rvt файлы
 $FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual"
 
 ; путь для лог файла (также там будут временные файлы) если "" имя файла совпадает с текущим, можно указать папку имя файла возьмет текщего, можно конкретный файл 
@@ -39,7 +39,11 @@ Dim $ExcludeArr[0]
 
 
 
+#cs ----------------------------------------------------------------------------
 
+далее идет код
+
+#ce ----------------------------------------------------------------------------
 
 ;защита от дурака, проверка пути
 Func checkPath(ByRef $sPath, $bFlag)
@@ -60,7 +64,7 @@ EndFunc
 	
 ;защита от дурака, проверка пути в массиве
 Func checkPathArr(ByRef $aPath)
-	For $i = 1 To UBound($aPath) - 1 Step 1
+	For $i = 0 To UBound($aPath) - 1 Step 1
 		$aPath[$i] = StringStripWS ( $aPath[$i], 3 )
 		if StringRight ( $aPath[$i], 1 ) <> "\" Then
 			$aPath[$i] = $aPath[$i] & "\"
@@ -103,6 +107,7 @@ Func printTofile($printFile,  $FileListInd)
 	FileClose($hFile)
 EndFunc
 
+;проверяет путь FolderNW если пустой то указывает туже папку для выгрузки где находится файл
 Func checkEmptyfolderNW ( byref $FolderNW , $fullPathtoFile )
 	if $FolderNW == "" Then
 		$FolderNW = StringLeft( $fullPathtoFile , StringInStr($fullPathtoFile, "\" , 0 , -1) - 1)
@@ -193,7 +198,7 @@ Func ExportNwc($MainF , $FolderNW , $LogFile , $ExcludeArr)
 	Dim	$rvtExt="*.rvt"
 	Dim	$nwcExt="nwc"
 	Dim	$LogFile2
-	
+
 	if StringLen ( $LogFile) == 0 Then
 			$LogFile2 = @ScriptDir & "\" & StringTrimRight (@ScriptName, 4) & "_log.txt"
 		ElseIf StringLeft(StringRight ( $LogFile, 4 ) , 1) == "." Then
@@ -204,7 +209,6 @@ Func ExportNwc($MainF , $FolderNW , $LogFile , $ExcludeArr)
 	EndIf
 	
 	$LogFile =  StringLeft($LogFile2 , StringInStr($LogFile2, "\" , 0 , -1) -1)
-
 
 	Dim $FileList2[0]
 ;ищет в папках файлы rvt и записывает в массив
