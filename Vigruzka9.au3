@@ -13,7 +13,7 @@
 #include <File.au3>
 #include <Date.au3>
 
-; папки в которых нужно проверять модели
+; папки в которых нужно проверять модели, без разницы есть на конце "\" или нет
 Dim $MainF[0]
 _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\04_KV")
 _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\04_OT")
@@ -38,7 +38,7 @@ $FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual"
 ;$LogFile="C:\ForPlanirovshik\log.txt" тут конкретно указывается путь и имя файла
 $LogFile="C:\ForPlanirovshik"
 
-; файлы для исключения
+; файлы для исключения из выгрузки
 Dim $ExcludeArr[0]
 ;_ArrayAdd($ExcludeArr, "X:\00_BIM\14_Академика Волгина\04_OT\AV_04_OT_PPFK_RD_R19_UND.rvt")
 ;_ArrayAdd($ExcludeArr, "X:\00_BIM\14_Академика Волгина\05_VK\AV_05_VK_PPFK_RD_R19_UND.rvt")
@@ -54,7 +54,7 @@ Dim $ExcludeArr[0]
 
 #ce ----------------------------------------------------------------------------
 
-;защита от дурака, проверка пути
+;проверка пути
 Func checkPath(ByRef $sPath, $bFlag)
 	$sPath = StringStripWS ( $sPath, 3 )
 	if $bFlag == 1 Then
@@ -71,7 +71,7 @@ EndFunc
 
 
 	
-;защита от дурака, проверка пути в массиве
+;проверка пути в массиве
 Func checkPathArr(ByRef $aPath)
 	For $i = 0 To UBound($aPath) - 1 Step 1
 		$aPath[$i] = StringStripWS ( $aPath[$i], 3 )
@@ -126,7 +126,7 @@ Func checkEmptyfolderNW ( byref $FolderNW , $fullPathtoFile )
 EndFunc
 
 ;запись массива во временные файлы и отправка на экпорт в 3 процесса
-Func multiProcessPrint($tempFiles, $FileList3 , $FolderNW)
+Func multiProcessExport($tempFiles, $FileList3 , $FolderNW)
 
 	Dim $aRet[3] ; массив с PID-ами процессов
 
@@ -251,7 +251,7 @@ Func ExportNwc($MainF , $FolderNW , $LogFile , $ExcludeArr)
 
 	sortingArrSize($FileList3)
 
-	multiProcessPrint($tempFiles, $FileList3 , $FolderNW)
+	multiProcessExport($tempFiles, $FileList3 , $FolderNW)
 
 	purgeFiles($tempFiles)
 	
