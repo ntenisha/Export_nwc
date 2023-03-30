@@ -1,7 +1,7 @@
 #cs ----------------------------------------------------------------------------
 
  AutoIt Version: 3.3.16.1
- Author:         Motor4ikk
+ Author:         Ntenisha
 
  Script Function:
 	Template AutoIt script.
@@ -25,11 +25,18 @@ _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\07_SS")
 _ArrayAdd($MainF, "X:\00_BIM\14_Академика Волгина\09_TM")
 
 
-; путь для выгрузки nwd файлов , можно оставить пустым тогда nwd файлы будут выгружаться туда же где и rvt файлы
+; путь для выгрузки nwd файлов, варианты:
+;$FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual"
+;$FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual\"
+;$FolderNW="" - в этом случае будет выгружать в теже папки где находится rvt файл
 $FolderNW="T:\07-volgina\ingrad\11_Navis\xchange_actual"
 
-; путь для лог файла (также там будут временные файлы) если "" имя файла совпадает с текущим, можно указать папку имя файла возьмет текщего, можно конкретный файл 
-$LogFile="C:\ForPlanirovshik\"
+; путь для лог файла , варианты:
+;$LogFile="" берется полный путь до исполняемого файла только в конце добавляется "_log.txt"
+;$LogFile="C:\ForPlanirovshik" имя будет совпадать с иполняемым фалом только в конце добавляется "_log.txt"
+;$LogFile="C:\ForPlanirovshik\" тоже самое
+;$LogFile="C:\ForPlanirovshik\log.txt" тут конкретно указывается путь и имя файла
+$LogFile="C:\ForPlanirovshik"
 
 ; файлы для исключения
 Dim $ExcludeArr[0]
@@ -41,7 +48,9 @@ Dim $ExcludeArr[0]
 
 #cs ----------------------------------------------------------------------------
 
+
 далее идет код
+
 
 #ce ----------------------------------------------------------------------------
 
@@ -117,7 +126,7 @@ Func checkEmptyfolderNW ( byref $FolderNW , $fullPathtoFile )
 EndFunc
 
 ;запись массива во временные файлы и отправка на экпорт в 3 процесса
-Func multiProcessPrint($LogFile, $FileList3 , $FolderNW)
+Func multiProcessPrint($tempFiles, $FileList3 , $FolderNW)
 
 	Dim $aRet[3] ; массив с PID-ами процессов
 
@@ -129,7 +138,7 @@ Func multiProcessPrint($LogFile, $FileList3 , $FolderNW)
 			Next
 		Until 0=$aRet[0]Or 0=$aRet[1]Or 0=$aRet[2]
 		If 0=$aRet[0]Then
-			$tempFile00 = $LogFile & "\temp_1.txt"
+			$tempFile00 = $tempFiles & "_temp_1.txt"
 			printTofile($tempFile00,  $FileList3[$i])
 			Sleep(999)
 			$aRet[0]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile00 & '" /od "'& checkEmptyfolderNW ($FolderNW , $FileList3[$i]) & '" /version 2019 ')
@@ -137,7 +146,7 @@ Func multiProcessPrint($LogFile, $FileList3 , $FolderNW)
 				Sleep(30000)
 			EndIf
 		ElseIf 0=$aRet[1]Then
-			$tempFile01 = $LogFile & "\temp_2.txt"
+			$tempFile01 = $tempFiles & "_temp_2.txt"
 			printTofile($tempFile01,  $FileList3[$i])
 			Sleep(999)
 			$aRet[1]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile01 & '" /od "'& checkEmptyfolderNW ($FolderNW , $FileList3[$i]) & '" /version 2019 ')
@@ -145,7 +154,7 @@ Func multiProcessPrint($LogFile, $FileList3 , $FolderNW)
 				Sleep(30000)
 			EndIf
 		ElseIf 0=$aRet[2]Then
-			$tempFile02 = $LogFile & "\temp_3.txt"
+			$tempFile02 = $tempFiles & "_temp_3.txt"
 			printTofile($tempFile02,  $FileList3[$i])
 			Sleep(999)
 			$aRet[2]=Run( '"C:\Program Files\Autodesk\Navisworks Manage 2019\FiletoolsTaskRunner.exe" /i "'& $tempFile02 & '" /od "'& checkEmptyfolderNW ($FolderNW , $FileList3[$i]) & '" /version 2019 ')
@@ -166,9 +175,9 @@ Func multiProcessPrint($LogFile, $FileList3 , $FolderNW)
 EndFunc
 
 ;удаление временных файлов
-Func purgeFiles($LogFile)
+Func purgeFiles($tempFiles)
 	For	$i= 0 To 3 Step 1
-		FileDelete ( $LogFile & "\temp_" & $i & ".txt")
+		FileDelete ( $tempFiles & "_temp_" & $i & ".txt")
 	Next
 EndFunc
 
@@ -208,7 +217,7 @@ Func ExportNwc($MainF , $FolderNW , $LogFile , $ExcludeArr)
 			$LogFile2 = $LogFile & StringTrimRight (@ScriptName, 4) & "_log.txt"
 	EndIf
 	
-	$LogFile =  StringLeft($LogFile2 , StringInStr($LogFile2, "\" , 0 , -1) -1)
+	$tempFiles =  @ScriptDir & "\" & StringTrimRight (@ScriptName, 4)
 
 	Dim $FileList2[0]
 ;ищет в папках файлы rvt и записывает в массив
@@ -242,9 +251,9 @@ Func ExportNwc($MainF , $FolderNW , $LogFile , $ExcludeArr)
 
 	sortingArrSize($FileList3)
 
-;	multiProcessPrint($LogFile, $FileList3 , $FolderNW)
+	multiProcessPrint($tempFiles, $FileList3 , $FolderNW)
 
-	purgeFiles($LogFile)
+	purgeFiles($tempFiles)
 	
 	proverkaNwc($LogFile2, $FileList3, $nwcExt)
 
